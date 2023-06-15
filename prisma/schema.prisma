@@ -1,0 +1,116 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int         @id @default(autoincrement())
+  first_name        String
+  last_name         String
+  email             String
+  password          String
+  country_code      Int?
+  phone_number      BigInt?
+  display_picture   String?
+  login_method      LoginMethod
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+  user_id           String?
+  is_email_verified Boolean     @default(false)
+  status            Status      @default(active)
+  user_role         UserRole    @relation(fields: [user_role_id], references: [id])
+  user_role_id      Int
+
+  @@unique([email, password])
+}
+
+model UserRole {
+  id                   Int                  @id @default(autoincrement())
+  user_role            String
+  is_admin             Boolean              @default(false)
+  status               Status               @default(active)
+  updated_by           Int
+  createdAt            DateTime             @default(now())
+  updatedAt            DateTime             @updatedAt
+  user                 User[]
+  user_role_privileges UserRolePrivileges[]
+}
+
+model UserRolePrivileges {
+  id           Int      @id @default(autoincrement())
+  user_role_id Int
+  user_role    UserRole @relation(fields: [user_role_id], references: [id])
+  screen_name  String
+  permission   String[]
+  status       Status   @default(active)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model GdprCompliance {
+  gdpr_compliance_id Int      @id @default(autoincrement())
+  gdpr_compliance    String
+  status             Status   @default(active)
+  delete_status      Status   @default(inactive)
+  updated_by         Int
+  updated_on         DateTime @updatedAt
+}
+
+model GdprComplianceStatusHistory {
+  gdpr_compliance_status_history_id Int      @id @default(autoincrement())
+  gdpr_compliance_id                Int
+  status                            Status   @default(active)
+  updated_by                        Int
+  updated_on                        DateTime @updatedAt
+}
+
+model PrivacyPolicy {
+  privacy_policy_id Int      @id @default(autoincrement())
+  privacy_policy    String
+  status            Status   @default(active)
+  delete_status     Status   @default(inactive)
+  updated_by        Int
+  updated_on        DateTime @updatedAt
+}
+
+model PrivacyPolicyStatusHistory {
+  privacy_policy_status_history_id Int      @id @default(autoincrement())
+  privacy_policy_id                Int
+  status                           Status   @default(active)
+  updated_by                       Int
+  updated_on                       DateTime @updatedAt
+}
+
+model TermsAndCondition {
+  terms_and_condition_id Int      @id @default(autoincrement())
+  terms_and_condition    String
+  status                 Status   @default(active)
+  delete_status          Status   @default(inactive)
+  updated_by             Int
+  updated_on             DateTime @updatedAt
+}
+
+model TermsAndConditionStatusHistory {
+  terms_and_condition_status_history_id Int      @id @default(autoincrement())
+  terms_and_condition_id                Int
+  status                                Status   @default(active)
+  updated_by                            Int
+  updated_on                            DateTime @updatedAt
+}
+
+enum LoginMethod {
+  google
+  phone
+  email
+  apple
+}
+
+enum Status {
+  active
+  inactive
+  blocked
+}
